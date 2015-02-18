@@ -40,10 +40,10 @@ Gem::Specification.new do |spec|
   spec.version       = "${project.version}"
   spec.authors       = ["FURUHASHI Sadayuki"]
   spec.summary       = %[Command file output plugin for Embulk]
-  spec.description   = %[Command file output plugin is an Embulk plugin that stores files to Command formatted by any formatter plugins. Search the formatter plugins by 'embulk-formatter' keyword.]
-  spec.email         = ["frsyuki@users.sourceforge.jp"]
-  spec.licenses      = ["MIT"]
-  # TODO: spec.homepage      = "https://github.com/frsyuki/embulk-output-command"
+  spec.description   = %[Command file output plugin is an Embulk plugin that executes a command writes files to its stdin. Search the formatter plugins by 'embulk-formatter' keyword.]
+  spec.email         = ["frsyuki@gmail.com"]
+  spec.licenses      = ["Apache 2.0"]
+  spec.homepage      = "https://github.com/embulk/embulk-output-command"
 
   spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
   spec.test_files    = spec.files.grep(%r"^(test|spec)/")
