@@ -15,8 +15,8 @@ configurations {
 version = "0.1.0"
 
 dependencies {
-    compile  "org.embulk:embulk-core:0.4.3"
-    provided "org.embulk:embulk-core:0.4.3"
+    compile  "org.embulk:embulk-core:0.4.8"
+    provided "org.embulk:embulk-core:0.4.8"
     // compile "YOUR_JAR_DEPENDENCY_GROUP:YOUR_JAR_DEPENDENCY_MODULE:YOUR_JAR_DEPENDENCY_VERSION"
     testCompile "junit:junit:4.+"
 }
@@ -38,9 +38,9 @@ task gemspec << { file("build/gemspec").write($/
 Gem::Specification.new do |spec|
   spec.name          = "${project.name}"
   spec.version       = "${project.version}"
-  spec.authors       = ["FURUHASHI Sadayuki"]
+  spec.authors       = ["Sadayuki Furuhashi"]
   spec.summary       = %[Command file output plugin for Embulk]
-  spec.description   = %[Command file output plugin is an Embulk plugin that executes a command writes files to its stdin. Search the formatter plugins by 'embulk-formatter' keyword.]
+  spec.description   = %[Executes a command and reads data from STDOUT.]
   spec.email         = ["frsyuki@gmail.com"]
   spec.licenses      = ["Apache 2.0"]
   spec.homepage      = "https://github.com/embulk/embulk-output-command"
