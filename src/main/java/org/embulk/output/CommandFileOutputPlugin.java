@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
@@ -73,7 +75,8 @@ public class CommandFileOutputPlugin
         return new PluginFileOutput(cmdline, taskIndex);
     }
 
-    private static class ShellFactory
+    @VisibleForTesting
+    static class ShellFactory
     {
         private List<String> shell;
 
