@@ -32,11 +32,6 @@ public class CommandFileOutputPlugin
         public String getCommand();
     }
 
-    public static final List<String> SHELL = ImmutableList.of(
-        // TODO use ["PowerShell.exe", "-Command"] on windows?
-        "sh", "-c"
-    );
-
     @Override
     public ConfigDiff transaction(ConfigSource config, int taskCount,
             FileOutputPlugin.Control control)
@@ -68,8 +63,9 @@ public class CommandFileOutputPlugin
     {
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
+        List<String> shell = new ShellFactory().build().get();
         List<String> cmdline = new ArrayList<String>();
-        cmdline.addAll(SHELL);
+        cmdline.addAll(shell);
         cmdline.add(task.getCommand());
 
         logger.info("Using command {}", cmdline);
