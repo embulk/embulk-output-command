@@ -77,6 +77,25 @@ public class CommandFileOutputPlugin
         return new PluginFileOutput(cmdline, taskIndex);
     }
 
+    private static class ShellFactory
+    {
+        private List<String> shell;
+
+        public List<String> get() {
+            return this.shell;
+        }
+
+        public ShellFactory build() {
+            String osName = System.getProperty("os.name");
+            if(osName.contains("Windows")) {
+                this.shell = ImmutableList.of("PowerShell.exe", "-Command");
+            } else {
+                this.shell = ImmutableList.of("sh", "-c");
+            }
+            return this;
+        }
+    }
+
     private static class ProcessWaitOutputStream
             extends FilterOutputStream
     {
