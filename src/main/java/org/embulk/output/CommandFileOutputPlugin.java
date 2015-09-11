@@ -86,7 +86,7 @@ public class CommandFileOutputPlugin
 
         public ShellFactory build() {
             String osName = System.getProperty("os.name");
-            if(osName.contains("Windows")) {
+            if(osName.indexOf("Windows") >= 0) {
                 this.shell = ImmutableList.of("PowerShell.exe", "-Command");
             } else {
                 this.shell = ImmutableList.of("sh", "-c");

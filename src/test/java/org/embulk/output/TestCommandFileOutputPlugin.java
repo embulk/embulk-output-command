@@ -29,7 +29,7 @@ public class TestCommandFileOutputPlugin
         List<String> shell = shellFactory.get();
         String osName = System.getProperty("os.name");
         List<String> actualShellCmd;
-        if (osName.contains("Windows")) {
+        if (osName.indexOf("Windows") >= 0) {
             actualShellCmd = ImmutableList.of("PowerShell.exe", "-Command");
         } else {
             actualShellCmd = ImmutableList.of("sh", "-c");
