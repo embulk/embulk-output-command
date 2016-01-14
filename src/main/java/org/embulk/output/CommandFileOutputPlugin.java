@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
@@ -31,11 +33,6 @@ public class CommandFileOutputPlugin
         @Config("command")
         public String getCommand();
     }
-
-    public static final List<String> SHELL = ImmutableList.of(
-        // TODO use ["PowerShell.exe", "-Command"] on windows?
-        "sh", "-c"
-    );
 
     @Override
     public ConfigDiff transaction(ConfigSource config, int taskCount,
@@ -68,13 +65,34 @@ public class CommandFileOutputPlugin
     {
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
+        List<String> shell = new ShellFactory().build().get();
         List<String> cmdline = new ArrayList<String>();
-        cmdline.addAll(SHELL);
+        cmdline.addAll(shell);
         cmdline.add(task.getCommand());
 
         logger.info("Using command {}", cmdline);
 
         return new PluginFileOutput(cmdline, taskIndex);
+    }
+
+    @VisibleForTesting
+    static class ShellFactory
+    {
+        private List<String> shell;
+
+        public List<String> get() {
+            return this.shell;
+        }
+
+        public ShellFactory build() {
+            String osName = System.getProperty("os.name");
+            if(osName.indexOf("Windows") >= 0) {
+                this.shell = ImmutableList.of("PowerShell.exe", "-Command");
+            } else {
+                this.shell = ImmutableList.of("sh", "-c");
+            }
+            return this;
+        }
     }
 
     private static class ProcessWaitOutputStream
