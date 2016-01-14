@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import com.google.common.base.Throwables;
@@ -65,9 +64,8 @@ public class CommandFileOutputPlugin
     {
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
-        List<String> shell = new ShellFactory().build().get();
         List<String> cmdline = new ArrayList<String>();
-        cmdline.addAll(shell);
+        cmdline.addAll(buildShell());
         cmdline.add(task.getCommand());
 
         logger.info("Using command {}", cmdline);
@@ -76,22 +74,13 @@ public class CommandFileOutputPlugin
     }
 
     @VisibleForTesting
-    static class ShellFactory
+    static List<String> buildShell()
     {
-        private List<String> shell;
-
-        public List<String> get() {
-            return this.shell;
-        }
-
-        public ShellFactory build() {
-            String osName = System.getProperty("os.name");
-            if(osName.indexOf("Windows") >= 0) {
-                this.shell = ImmutableList.of("PowerShell.exe", "-Command");
-            } else {
-                this.shell = ImmutableList.of("sh", "-c");
-            }
-            return this;
+        String osName = System.getProperty("os.name");
+        if(osName.indexOf("Windows") >= 0) {
+            return ImmutableList.of("PowerShell.exe", "-Command");
+        } else {
+            return ImmutableList.of("sh", "-c");
         }
     }
 
