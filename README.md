@@ -27,10 +27,32 @@ You can use the combination of (INDEX, SEQID) as an unique identifier of a task.
 
 ## Example
 
+### For UNIX/Linux
+
 ```yaml
 out:
   type: command
   command: "cat - > task.$INDEX.$SEQID.csv"
+  formatter:
+    type: csv
+```
+
+### For Windows
+
+To refer Environment variables, you should use `${Env:ENVVAR}`.
+For example, in powershell, you can refer `INDEX` and `SEQID` environment variables, which are defined by `embulk-output-command`, like this:
+
+```powershell
+${Env:INDEX} # refer INDEX environment variable
+${Env:SEQID} # refer SEQID environment variable
+```
+
+Note that `${input}` equals to `cat -` in PowerShell.
+
+```yaml
+out:
+  type: command
+  command: ${input} > task.${Env:INDEX}.${Env:SEQID}.csv
   formatter:
     type: csv
 ```
