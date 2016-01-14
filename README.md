@@ -12,7 +12,7 @@ This plugin runs a command and writes formatted data to its stdin.
 
 - **command**: command line (string, required)
 
-The **command** is exected using a shell. So it can include pipe (`|`), environment variables (`$VAR`), redirects, and so on.
+The **command** is exected using a shell (`sh -c` on UNIX/Linux, `PowerShell.exe -Command` on Windows). Therefore, it can include pipe (`|`), environment variables (`$VAR`), redirects, and so on.
 
 The command runs `total-task-count * total-seqid-count` times. For example, if there is 3 local files and formatter produces 2 files for each input file, the command is executed for 6 times.
 
