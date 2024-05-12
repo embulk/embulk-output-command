@@ -46,7 +46,7 @@ dependencies {
 }
 
 embulkPlugin {
-    mainClass = "org.embulk.output.CommandFileOutputPlugin"
+    mainClass = "org.embulk.output.command.CommandFileOutputPlugin"
     category = "output"
     type = "command"
 }
