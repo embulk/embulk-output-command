@@ -2,30 +2,28 @@ package org.embulk.output;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.io.OutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import org.embulk.config.TaskReport;
-import org.embulk.config.Config;
-import org.embulk.config.ConfigDefault;
+import org.embulk.util.config.Config;
 import org.embulk.config.ConfigDiff;
 import org.embulk.config.ConfigSource;
-import org.embulk.config.Task;
+import org.embulk.util.config.ConfigMapper;
+import org.embulk.util.config.ConfigMapperFactory;
+import org.embulk.util.config.Task;
+import org.embulk.util.config.TaskMapper;
 import org.embulk.config.TaskSource;
 import org.embulk.spi.Buffer;
-import org.embulk.spi.Exec;
 import org.embulk.spi.FileOutputPlugin;
 import org.embulk.spi.TransactionalFileOutput;
 
 public class CommandFileOutputPlugin
         implements FileOutputPlugin
 {
-    private final Logger logger = Exec.getLogger(getClass());
-
     public interface PluginTask
             extends Task
     {
@@ -37,10 +35,11 @@ public class CommandFileOutputPlugin
     public ConfigDiff transaction(ConfigSource config, int taskCount,
             FileOutputPlugin.Control control)
     {
-        PluginTask task = config.loadConfig(PluginTask.class);
+        final ConfigMapper configMapper = CONFIG_MAPPER_FACTORY.createConfigMapper();
+        final PluginTask task = configMapper.map(config, PluginTask.class);
 
         // retryable (idempotent) output:
-        return resume(task.dump(), taskCount, control);
+        return resume(task.toTaskSource(), taskCount, control);
     }
 
     @Override
@@ -49,7 +48,7 @@ public class CommandFileOutputPlugin
             FileOutputPlugin.Control control)
     {
         control.run(taskSource);
-        return Exec.newConfigDiff();
+        return CONFIG_MAPPER_FACTORY.newConfigDiff();
     }
 
     @Override
@@ -62,7 +61,8 @@ public class CommandFileOutputPlugin
     @Override
     public TransactionalFileOutput open(TaskSource taskSource, final int taskIndex)
     {
-        PluginTask task = taskSource.loadTask(PluginTask.class);
+        final TaskMapper taskMapper = CONFIG_MAPPER_FACTORY.createTaskMapper();
+        final PluginTask task = taskMapper.map(taskSource, PluginTask.class);
 
         List<String> cmdline = new ArrayList<String>();
         cmdline.addAll(buildShell());
@@ -73,14 +73,13 @@ public class CommandFileOutputPlugin
         return new PluginFileOutput(cmdline, taskIndex);
     }
 
-    @VisibleForTesting
     static List<String> buildShell()
     {
         String osName = System.getProperty("os.name");
         if(osName.indexOf("Windows") >= 0) {
-            return ImmutableList.of("PowerShell.exe", "-Command");
+            return Collections.unmodifiableList(Arrays.asList("PowerShell.exe", "-Command"));
         } else {
-            return ImmutableList.of("sh", "-c");
+            return Collections.unmodifiableList(Arrays.asList("sh", "-c"));
         }
     }
 
@@ -109,7 +108,7 @@ public class CommandFileOutputPlugin
                 try {
                     code = process.waitFor();
                 } catch (InterruptedException ex) {
-                    throw Throwables.propagate(ex);
+                    throw new RuntimeException(ex);
                 }
                 process = null;
                 if (code != 0) {
@@ -171,7 +170,7 @@ public class CommandFileOutputPlugin
 
         public TaskReport commit()
         {
-            return Exec.newTaskReport();
+            return CONFIG_MAPPER_FACTORY.newTaskReport();
         }
 
         private void closeCurrentProcess()
@@ -182,7 +181,7 @@ public class CommandFileOutputPlugin
                     currentProcess = null;
                 }
             } catch (IOException ex) {
-                throw Throwables.propagate(ex);
+                throw new RuntimeException(ex);
             }
         }
 
@@ -198,8 +197,11 @@ public class CommandFileOutputPlugin
             try {
                 return builder.start();
             } catch (IOException ex) {
-                throw Throwables.propagate(ex);
+                throw new RuntimeException(ex);
             }
         }
     }
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(CommandFileOutputPlugin.class);
+
+    private static final ConfigMapperFactory CONFIG_MAPPER_FACTORY = ConfigMapperFactory.builder().addDefaultModules().build();
 }
